@@ -1,0 +1,28 @@
+{
+	"PadList" :[
+		{"Pad":"Fusion"},
+		{"Pad":"Visual Studio Code"},
+		{"Pad":"General"},
+		{"Pad":"Home Assistant"}
+	],
+	"Pad0"	:[
+		{ "value":"ALT"},
+		{ "value":"ENTER"},
+		{ "value":"SHIFT,G"}
+	],
+	"Pad1"	:[
+		{ "value":"ALT"},
+		{ "value":"ENTER"},
+		{ "value":"SHIFT,G"}
+	],
+	"Pad2"	:[
+		{ "value":"ALT"},
+		{ "value":"ENTER"},
+		{ "value":"SHIFT,G"}
+	],
+	"Pad3"	:[
+		{ "value":"ALT"},
+		{ "value":"ENTER"},
+		{ "value":"SHIFT,G"}
+	]
+}
