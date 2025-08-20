@@ -1,13 +1,13 @@
+#include <AS5600.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <WebServer.h>
-#include <ESPmDNS.h>
 #include <FS.h>
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
-#include <Adafruit_ST7789.h>
+#include <Wire.h>
 #include <SPI.h>
-
+#include <TFT_eSPI.h>
 
 #define PAD0 0
 #define PAD1 1
@@ -18,6 +18,9 @@
 const char* ssid="iot";
 const char* password="jacolr@telkom!9";
 const String configFileName="config.json";
+
+//TFT en fonts
+TFT_eSPI tft = TFT_eSPI();
 
 //webserver
 WebServer server(80);
@@ -141,7 +144,7 @@ void setup() {
   Serial.print("IP: ");
   Serial.println(WiFi.localIP());
 
-  MDNS.begin("ble_go");
+  //MDNS.begin("ble_go");
 
  server.on("/", rootResponse);
  server.on("/upload", uploadFunction);
@@ -161,11 +164,32 @@ void setup() {
 
 ConfigurationFileParser();
 
+//tft configuration
+  tft.begin();
+  tft.setRotation(1);
+  tft.setTextFont(4);
+  tft.setTextSize(1.2);
+
+  tft.fillScreen(TFT_BLACK);
+  tft.setTextColor(TFT_GREEN, TFT_BLACK);
+  tft.setCursor(10,45);
+  tft.println("ble Multi Key");
+
+  tft.setTextColor(TFT_WHITE, TFT_BLACK);
+  tft.setCursor(10,100);
+  tft.print("IP: ");
+  tft.println(WiFi.localIP());
+
+  delay(2000);
+
+  tft.fillScreen(TFT_BLACK);
+
+  UpdateHeaderText("General", TFT_DARKGREEN);
 }
 
 void loop() {
  
-  server.handleClient();
+ server.handleClient();
 
   //handle new config
   if(NewUpload){
@@ -272,5 +296,18 @@ arrayJSON = doc["Pad3"];
   }
 
   Serial.println(arrayKeys[PAD3][1]);
+}
+
+void UpdateHeaderText(String Line, uint32_t themecolor){
+
+  tft.fillRoundRect(5, 5, 230, 125, 10, TFT_DARKGREY);
+  
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_BLACK, TFT_DARKGREY);
+  tft.drawString(Line, 20,12, 4);
+
+  tft.fillSmoothCircle( 213, 20, 3, themecolor, TFT_DARKGREY);
+  tft.fillSmoothCircle( 213, 115, 3, themecolor, TFT_DARKGREY);
+  tft.fillRect(210, 20 , 7,  95, themecolor);
 
 }
