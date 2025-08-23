@@ -35,6 +35,12 @@ bool NewUpload = false;
 const char* arrayPadList[4];
 const char* arrayKeys[4][10]; //4[PADS] dimentions with 10 key combinations in each
 
+//Rotary Encoder
+AS5600 rotEnc;
+#define rotSDA 25
+#define rotSCL 33
+
+int rotReadTime_ms = 250; 
 
 String createResponse(){
   return page;
@@ -160,9 +166,10 @@ void setup() {
    Serial.println("FS Failed!");
  }
 
-//Load config file already in SPIFFS
 
-ConfigurationFileParser();
+//enable  rotary encoder;
+Wire.begin(rotSDA,rotSCL);
+
 
 //tft configuration
   tft.begin();
@@ -181,14 +188,26 @@ ConfigurationFileParser();
   tft.println(WiFi.localIP());
 
   delay(2000);
+  
+  //Load config file already in SPIFFS
+  ConfigurationFileParser();
+  
+ // tft.fillScreen(TFT_BLACK);
 
-  tft.fillScreen(TFT_BLACK);
-
-  UpdateHeaderText("General", TFT_DARKGREEN);
+  //UpdateHeaderText("General", TFT_DARKGREEN);
 }
 
 void loop() {
  
+static uint8_t lastTime = 0;
+
+//rotary encoder
+if (millis() - lastTime >= rotReadTime_ms) {
+    lastTime = millis();
+    rotEnc.getCumulativePosition();    
+}
+
+  //config webserver
  server.handleClient();
 
   //handle new config
@@ -196,6 +215,7 @@ void loop() {
 
     NewUpload = false;
     ConfigurationFileParser();
+    UpdateHeaderText(arrayPadList[0], TFT_BLACK );
   }
 
 }
@@ -216,6 +236,8 @@ void ConfigurationFileParser(){
 
   if(error){
     Serial.println("Failed to read file!");
+    NoFileTFTMessage();
+    delay(5000);
     return;
   }
 
@@ -297,8 +319,23 @@ arrayJSON = doc["Pad3"];
 
   Serial.println(arrayKeys[PAD3][1]);
 }
+void NoFileTFTMessage(){
+
+    tft.setTextFont(2);
+    tft.fillScreen(TFT_DARKGREEN);
+    tft.setTextColor(TFT_WHITE, TFT_DARKGREEN);
+    tft.setCursor(10,10);
+    tft.println("No Configuration File\n\n");
+
+    tft.setCursor(10,90);
+    tft.println(WiFi.localIP());
+    tft.setCursor(10,50);
+    tft.println("To upload configuration use IP:");
+}
+
 
 void UpdateHeaderText(String Line, uint32_t themecolor){
+
 
   tft.fillRoundRect(5, 5, 230, 125, 10, TFT_DARKGREY);
   
